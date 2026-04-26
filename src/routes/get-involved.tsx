@@ -1,25 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { HandCoins, Users, Building2, Mail, Phone } from "lucide-react";
+import { Users, Building2, Mail, Phone, HeartHandshake } from "lucide-react";
 
 export const Route = createFileRoute("/get-involved")({
   head: () => ({
     meta: [
       { title: "Get Involved — PRG Social Welfare Trust" },
-      { name: "description", content: "Donate, volunteer, or partner with PRG Social Welfare Trust to support communities in Anantapur." },
+      { name: "description", content: "Volunteer or partner with PRG Social Welfare Trust to support communities in Anantapur." },
       { property: "og:title", content: "Get Involved — PRG Social Welfare Trust" },
-      { property: "og:description", content: "Donate, volunteer, partner with us." },
+      { property: "og:description", content: "Volunteer or partner with us." },
     ],
   }),
   component: GetInvolvedPage,
 });
 
 const ways = [
-  { icon: HandCoins, title: "Donate", desc: "Your contribution funds school supplies, medical camps and tree drives.", cta: "Contact to donate", to: "/contact" as const },
   { icon: Users, title: "Volunteer", desc: "Lend your time and skills — teach, organise camps, or join plantation drives.", cta: "Join us", to: "/contact" as const },
   { icon: Building2, title: "Partner", desc: "Corporates and NGOs — collaborate on CSR programs with measurable impact.", cta: "Start a partnership", to: "/contact" as const },
+  { icon: HeartHandshake, title: "Spread the word", desc: "Share our mission with your network and help us reach more communities.", cta: "Get in touch", to: "/contact" as const },
 ];
-
-const amounts = [500, 1000, 2500, 5000];
 
 function GetInvolvedPage() {
   return (
@@ -56,30 +54,15 @@ function GetInvolvedPage() {
         <div className="container-x grid gap-10 md:grid-cols-2 items-start">
           <div>
             <div className="accent-bar" />
-            <h2 className="mt-4 text-3xl md:text-4xl">Make a contribution</h2>
+            <h2 className="mt-4 text-3xl md:text-4xl">Work with us</h2>
             <p className="mt-3 text-foreground/75">
-              Choose an amount that's right for you. Every donation goes directly to our programs —
-              transparently reported and gratefully received.
-            </p>
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {amounts.map((a) => (
-                <button
-                  key={a}
-                  className="rounded-xl border border-border bg-card px-4 py-4 font-display text-lg font-semibold hover:border-brand-orange hover:text-brand-orange-deep transition-colors"
-                  type="button"
-                >
-                  ₹{a.toLocaleString("en-IN")}
-                </button>
-              ))}
-            </div>
-            <p className="mt-4 text-xs text-foreground/60">
-              For donations, please contact us — we'll share secure bank details and provide a
-              receipt for your records.
+              Whether you have an hour, a skill, or an idea — there's a place for you in our work.
+              Reach out and our team will guide you to the best way to contribute.
             </p>
           </div>
 
           <div className="card-soft p-8">
-            <h3 className="text-xl font-semibold">Reach out to give</h3>
+            <h3 className="text-xl font-semibold">Reach out to us</h3>
             <p className="mt-2 text-sm text-foreground/70">Speak directly with our team.</p>
             <ul className="mt-5 space-y-3 text-sm">
               <li className="flex items-center gap-3">
