@@ -16,7 +16,7 @@ export const Route = createFileRoute("/programs")({
 const programs = [
   {
     icon: GraduationCap,
-    title: "Education for All",
+    title: "Children Education",
     summary: "Equipping children with the tools to dream further.",
     points: ["School supplies & uniforms", "Scholarships for bright students", "After-school learning support", "Digital literacy"],
     color: "from-brand-blue to-brand-blue-deep",
