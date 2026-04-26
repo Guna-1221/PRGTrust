@@ -47,7 +47,7 @@ function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/get-involved" className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold btn-primary">
-                Donate Now <ArrowRight size={16} />
+                Get Involved <ArrowRight size={16} />
               </Link>
               <Link to="/programs" className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold btn-outline-light">
                 Our Programs
@@ -156,10 +156,10 @@ function HomePage() {
           <div className="rounded-3xl border border-border bg-card p-8 md:p-12 text-center md:text-left md:flex md:items-center md:justify-between gap-8 shadow-soft">
             <div>
               <h2 className="text-2xl md:text-3xl">Be part of the change.</h2>
-              <p className="mt-2 text-foreground/70 max-w-xl">Volunteer your time, donate generously, or partner with us to scale impact in rural Andhra Pradesh.</p>
+              <p className="mt-2 text-foreground/70 max-w-xl">Volunteer your time or partner with us to scale impact in rural Andhra Pradesh.</p>
             </div>
             <div className="mt-6 md:mt-0 flex flex-wrap justify-center gap-3">
-              <Link to="/get-involved" className="inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold btn-primary">Donate</Link>
+              <Link to="/get-involved" className="inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold btn-primary">Get Involved</Link>
               <Link to="/contact" className="inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold border border-brand-blue text-brand-blue hover:bg-brand-blue hover:text-white transition-colors">Contact us</Link>
             </div>
           </div>
