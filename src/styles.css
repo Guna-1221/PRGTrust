@@ -32,8 +32,11 @@
   --color-ring: var(--ring);
 
   --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-deep: var(--brand-blue-deep);
   --color-brand-orange: var(--brand-orange);
+  --color-brand-orange-deep: var(--brand-orange-deep);
   --color-brand-green: var(--brand-green);
+  --color-brand-green-deep: var(--brand-green-deep);
   --color-brand-cream: var(--brand-cream);
 
   --font-display: "Fraunces", "Georgia", serif;
