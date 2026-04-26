@@ -104,7 +104,7 @@ function HomePage() {
             </Link>
           </div>
 
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {programs.map((p) => (
               <article key={p.title} className="card-soft p-6">
                 <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${p.bg} ${p.color}`}>
