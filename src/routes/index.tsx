@@ -3,7 +3,7 @@ import hero from "@/assets/hero-community.jpg";
 import food1 from "@/assets/food-donation-1.jpg";
 import food2 from "@/assets/food-donation-2.jpg";
 import food3 from "@/assets/food-donation-3.jpg";
-import { GraduationCap, HeartPulse, Sprout, Users, ArrowRight, Quote, Utensils } from "lucide-react";
+import { GraduationCap, HeartPulse, Sprout, Users, ArrowRight, Quote, Utensils, HandHeart } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
