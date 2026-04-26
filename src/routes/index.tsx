@@ -117,8 +117,48 @@ function HomePage() {
         </div>
       </section>
 
+      {/* RECENT FOOD DONATION */}
+      <section className="section-pad">
+        <div className="container-x">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <div className="accent-bar" />
+              <h2 className="mt-4 text-3xl md:text-4xl flex items-center gap-3">
+                <Utensils className="text-brand-orange-deep" size={28} />
+                Our Recent Food Donation
+              </h2>
+              <p className="mt-2 text-foreground/70 max-w-2xl">
+                Volunteers from PRG Trust distributing food packets to elderly and homeless
+                individuals on the streets of Anantapur — small acts, big dignity.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { src: food1, alt: "PRG volunteer handing food packet to an elderly man on the street" },
+              { src: food2, alt: "PRG volunteer offering food to an elderly visually impaired man" },
+              { src: food3, alt: "PRG volunteer handing food packet to an elderly woman in a red saree" },
+            ].map((img) => (
+              <figure key={img.src} className="card-soft overflow-hidden group">
+                <div className="aspect-[4/5] overflow-hidden bg-secondary">
+                  <img
+                    src={img.src}
+                    alt={img.alt}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CHAIRMAN'S MESSAGE */}
       <section className="section-pad">
+
         <div className="container-x">
           <div className="relative overflow-hidden rounded-3xl bg-brand-blue-deep text-white p-8 md:p-14">
             <Quote className="absolute -top-4 -right-4 text-white/5" size={220} />
