@@ -47,12 +47,6 @@ export function SiteHeader() {
               {n.label}
             </Link>
           ))}
-          <Link
-            to="/get-involved"
-            className="ml-2 inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold btn-primary"
-          >
-            Donate
-          </Link>
         </nav>
 
         <button
@@ -78,13 +72,6 @@ export function SiteHeader() {
                 {n.label}
               </Link>
             ))}
-            <Link
-              to="/get-involved"
-              onClick={() => setOpen(false)}
-              className="mt-2 inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold btn-primary"
-            >
-              Donate
-            </Link>
           </div>
         </nav>
       )}
