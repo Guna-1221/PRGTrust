@@ -34,25 +34,63 @@ function AboutPage() {
         </div>
       </section>
 
+      {/* VISION DOCUMENT */}
       <section className="section-pad">
-        <div className="container-x grid gap-10 md:grid-cols-2">
-          <div className="card-soft p-8">
-            <div className="text-xs font-semibold uppercase tracking-widest text-brand-orange-deep">Vision</div>
-            <h2 className="mt-2 text-2xl">An inclusive, empowered, sustainable society.</h2>
-            <p className="mt-4 text-foreground/75 leading-relaxed">
-              To build a society where every individual — especially the underprivileged — has access
-              to quality education, healthcare, equal opportunities and a healthy environment,
-              ensuring dignity, self-reliance and overall social welfare for all.
-            </p>
+        <div className="container-x">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="card-soft p-8">
+              <div className="text-xs font-semibold uppercase tracking-widest text-brand-orange-deep">Vision</div>
+              <h2 className="mt-2 text-2xl">An inclusive, empowered, sustainable society.</h2>
+              <p className="mt-4 text-foreground/75 leading-relaxed">
+                To build an inclusive, empowered, and sustainable society where every individual —
+                especially the underprivileged — has access to quality education, healthcare, equal
+                opportunities, and a healthy environment, ensuring dignity, self-reliance, and
+                overall social welfare for all sections of the community.
+              </p>
+            </div>
+            <div className="card-soft p-8">
+              <div className="text-xs font-semibold uppercase tracking-widest text-brand-blue">Mission</div>
+              <h2 className="mt-2 text-2xl">Service through collaboration & transparency.</h2>
+              <p className="mt-4 text-foreground/75 leading-relaxed">
+                The mission of PRG Social Welfare Trust is to promote education, healthcare, women
+                empowerment, environmental sustainability, and overall community welfare by
+                supporting underprivileged groups, creating livelihood opportunities, and
+                implementing sustainable development initiatives through collaboration and
+                transparency.
+              </p>
+            </div>
           </div>
-          <div className="card-soft p-8">
-            <div className="text-xs font-semibold uppercase tracking-widest text-brand-blue">Mission</div>
-            <h2 className="mt-2 text-2xl">Service through collaboration & transparency.</h2>
-            <p className="mt-4 text-foreground/75 leading-relaxed">
-              To promote education, healthcare, women empowerment, environmental sustainability and
-              community welfare by supporting underprivileged groups, creating livelihood
-              opportunities and implementing sustainable development initiatives.
+
+          <div className="mt-8 rounded-3xl border border-border bg-card p-8 md:p-10 shadow-soft">
+            <div className="accent-bar" />
+            <h2 className="mt-4 text-2xl md:text-3xl">Our Vision Document</h2>
+            <p className="mt-3 text-foreground/70 max-w-3xl">
+              The complete vision, mission and chairman's message that guides every initiative at
+              PRG Social Welfare Trust.
             </p>
+            <div className="mt-6 grid gap-6 md:grid-cols-3 text-sm">
+              <div>
+                <h3 className="font-display text-lg font-semibold text-brand-blue-deep">Why we exist</h3>
+                <p className="mt-2 text-foreground/75 leading-relaxed">
+                  To serve society with integrity, compassion and responsibility — ensuring no one
+                  is left behind.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display text-lg font-semibold text-brand-blue-deep">What we believe</h3>
+                <p className="mt-2 text-foreground/75 leading-relaxed">
+                  True development happens when every individual gets equal opportunity to grow and
+                  live with dignity.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display text-lg font-semibold text-brand-blue-deep">How we work</h3>
+                <p className="mt-2 text-foreground/75 leading-relaxed">
+                  Through collaboration with donors, volunteers and partner organisations — focused
+                  on sustainable, transparent action.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
