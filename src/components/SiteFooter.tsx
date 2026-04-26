@@ -42,7 +42,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-white/10">
         <div className="container-x py-4 text-xs text-white/60 flex flex-col sm:flex-row justify-between gap-2">
-          <span>© {new Date().getFullYear()} PRG Social Welfare Trust. All rights reserved.</span>
+          <span>© 2026 PRG Social Welfare Trust. All rights reserved.</span>
           <span>Made with care for a better tomorrow.</span>
         </div>
       </div>
