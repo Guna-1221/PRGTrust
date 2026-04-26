@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import hero from "@/assets/hero-community.jpg";
-import { GraduationCap, HeartPulse, Sprout, Users, ArrowRight, Quote } from "lucide-react";
+import food1 from "@/assets/food-donation-1.jpg";
+import food2 from "@/assets/food-donation-2.jpg";
+import food3 from "@/assets/food-donation-3.jpg";
+import { GraduationCap, HeartPulse, Sprout, Users, ArrowRight, Quote, Utensils } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -15,7 +18,7 @@ export const Route = createFileRoute("/")({
 });
 
 const programs = [
-  { icon: GraduationCap, title: "Education", desc: "Scholarships, school supplies and learning support for underprivileged children.", color: "text-brand-blue", bg: "bg-brand-blue/10" },
+  { icon: GraduationCap, title: "Children Education", desc: "Scholarships, school supplies and learning support for underprivileged children.", color: "text-brand-blue", bg: "bg-brand-blue/10" },
   { icon: HeartPulse, title: "Healthcare", desc: "Free medical camps, health awareness and access to essential care.", color: "text-brand-orange-deep", bg: "bg-brand-orange/15" },
   { icon: Users, title: "Women Empowerment", desc: "Skill training, livelihood programs and self-reliance initiatives.", color: "text-brand-blue-deep", bg: "bg-brand-blue/10" },
   { icon: Sprout, title: "Environment", desc: "Tree plantation drives and community-led sustainability projects.", color: "text-brand-green-deep", bg: "bg-brand-green/15" },
@@ -53,18 +56,6 @@ function HomePage() {
                 Our Programs
               </Link>
             </div>
-            <dl className="mt-10 grid grid-cols-3 gap-6 max-w-md">
-              {[
-                { k: "1,200+", v: "Lives touched" },
-                { k: "30+", v: "Villages served" },
-                { k: "5", v: "Core programs" },
-              ].map((s) => (
-                <div key={s.v}>
-                  <dt className="font-display text-2xl font-bold text-brand-orange sm:text-3xl">{s.k}</dt>
-                  <dd className="text-xs text-white/75 uppercase tracking-wider">{s.v}</dd>
-                </div>
-              ))}
-            </dl>
           </div>
 
           <div className="md:col-span-5">
