@@ -18,10 +18,11 @@ export const Route = createFileRoute("/")({
 });
 
 const programs = [
-  { icon: GraduationCap, title: "Children Education", desc: "Scholarships, school supplies and learning support for underprivileged children.", color: "text-brand-blue", bg: "bg-brand-blue/10" },
-  { icon: HeartPulse, title: "Healthcare", desc: "Free medical camps, health awareness and access to essential care.", color: "text-brand-orange-deep", bg: "bg-brand-orange/15" },
+  { icon: GraduationCap, title: "Education & Child Welfare", desc: "Scholarships, school supplies and learning support for underprivileged children.", color: "text-brand-blue", bg: "bg-brand-blue/10" },
+  { icon: HeartPulse, title: "Health & Medical Relief", desc: "Free medical camps, health awareness and access to essential care.", color: "text-brand-orange-deep", bg: "bg-brand-orange/15" },
   { icon: Users, title: "Women Empowerment", desc: "Skill training, livelihood programs and self-reliance initiatives.", color: "text-brand-blue-deep", bg: "bg-brand-blue/10" },
-  { icon: Sprout, title: "Environment", desc: "Tree plantation drives and community-led sustainability projects.", color: "text-brand-green-deep", bg: "bg-brand-green/15" },
+  { icon: HandHeart, title: "Social Welfare & Community Support", desc: "Food relief, senior citizen care, disaster response and inclusion.", color: "text-brand-orange-deep", bg: "bg-brand-orange/15" },
+  { icon: Sprout, title: "Environmental Sustainability", desc: "Tree plantation drives and community-led sustainability projects.", color: "text-brand-green-deep", bg: "bg-brand-green/15" },
 ];
 
 function HomePage() {
