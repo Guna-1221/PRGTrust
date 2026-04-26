@@ -34,7 +34,7 @@ export function SiteFooter() {
         <div>
           <h4 className="text-sm font-semibold uppercase tracking-wider text-white/90">Contact</h4>
           <ul className="mt-3 space-y-2 text-sm text-white/80">
-            <li className="flex gap-2"><MapPin size={16} className="mt-0.5 text-brand-orange" />3-14, Madigubba, Atmakur Mandal, Anantapur, AP – 515751</li>
+            <li className="flex gap-2"><MapPin size={16} className="mt-0.5 text-brand-orange shrink-0" />3-14, Madigubba, Athmakur Mandal, Anantapur District, Andhra Pradesh</li>
             <li className="flex gap-2"><Phone size={16} className="text-brand-orange" /><a href="tel:+919951217286" className="hover:text-white">+91 99512 17286</a></li>
             <li className="flex gap-2"><Mail size={16} className="text-brand-orange" /><a href="mailto:info@prgtrust.org" className="hover:text-white">info@prgtrust.org</a></li>
           </ul>

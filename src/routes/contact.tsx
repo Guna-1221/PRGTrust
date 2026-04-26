@@ -39,8 +39,9 @@ function ContactPage() {
               <div>
                 <div className="text-xs uppercase tracking-widest text-foreground/60">Address</div>
                 <p className="mt-1 text-sm text-foreground/85">
-                  3-14, Madigubba, Atmakur Mandal,<br />
-                  Anantapur District, Andhra Pradesh – 515751
+                  3-14, Madigubba,<br />
+                  Athmakur Mandal,<br />
+                  Anantapur District, Andhra Pradesh
                 </p>
               </div>
             </div>
