@@ -2,7 +2,6 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import appCss from "../styles.css?url";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -44,7 +43,10 @@ export const Route = createRootRoute({
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/73631dee-207f-4860-b415-6bc6fff70b88/id-preview-663a7553--cd9b59e1-f2ac-4bab-8aa4-d81d13e07b4d.lovable.app-1777200269224.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/73631dee-207f-4860-b415-6bc6fff70b88/id-preview-663a7553--cd9b59e1-f2ac-4bab-8aa4-d81d13e07b4d.lovable.app-1777200269224.png" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }, { rel: "icon", href: "C:\\Users\\gunas\\OneDrive\\Desktop\\New folder\\hacko\\new\\sampleee\\src\\assets\\prg-logo.jpg", type: "image/png" }],
+    links: [
+  { rel: "stylesheet", href: appCss },
+  { rel: "icon", href: "/favicon.png", type: "image/png" },
+],
   }),
   shellComponent: RootShell,
   component: RootComponent,
