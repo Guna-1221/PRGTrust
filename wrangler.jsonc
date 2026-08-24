@@ -1,20 +1,20 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "prgtrust-app",
-  "compatibility_date": "2025-09-24",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
-  "main": "@tanstack/react-start/server-entry",
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "prgtrust-db",
-      "database_id": "18a3c2af-7611-49d4-80f4-8f5400159cfe"
-    }
-  ],
-  "vars": {
-    "ADMIN_PASSCODE": "prgtrust2026",
-    "JWT_SECRET": "prg-trust-production-secret-key-2026"
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "prgtrust-app",
+	"compatibility_date": "2025-09-24",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"main": "@tanstack/react-start/server-entry",
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "prgtrust-db",
+			"database_id": "4ffe7445-af82-4cae-bf08-6a82065d8a58"
+		}
+	],
+	"vars": {
+		"ADMIN_PASSCODE": "prgtrust2026",
+		"JWT_SECRET": "prg-trust-production-secret-key-2026"
+	}
 }
