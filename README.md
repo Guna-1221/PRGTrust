@@ -1,361 +1,103 @@
-# PRG Social Welfare Trust — Website & Content Manager
+# PRG Trust
 
-A full-stack website for **PRG Social Welfare Trust**, a non-profit based in Anantapur District, Andhra Pradesh. The public site presents the Trust's mission, programs and activities. A passcode-protected admin dashboard lets staff publish events and donation-drive updates, including photo uploads, without touching code.
+PRG Trust is split into a React/Vite frontend and an independent Node.js/Express API.
+The frontend only communicates with the backend over HTTP. Cloudflare D1 remains the
+database; the Node API uses Cloudflare's D1 REST API.
 
-The app is built with **TanStack Start** (React 19, file-based routing, server routes) and deploys to **Cloudflare Workers** with a **D1** (SQLite) database.
+## Project structure
 
----
-
-## Table of Contents
-
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Configuration](#configuration)
-- [Database](#database)
-- [API Reference](#api-reference)
-- [Authentication](#authentication)
-- [Image Storage](#image-storage)
-- [Deployment](#deployment)
-- [Scripts](#scripts)
-- [Security Notes](#security-notes)
-- [Known Limitations](#known-limitations)
-
----
-
-## Features
-
-**Public site**
-
-| Page | Route | Description |
-| --- | --- | --- |
-| Home | `/` | Hero, live events list, mission, program overview, donation gallery, chairman's message, call to action |
-| About | `/about` | Vision and mission, vision document summary, core values (Integrity, Compassion, Impact, Inclusion), leadership |
-| Programs | `/programs` | Children Education, Healthcare Access, Women Empowerment, Environmental Sustainability, Community Welfare |
-| Get Involved | `/get-involved` | Ways to volunteer, partner, and spread the word |
-| Contact | `/contact` | Phone, email, address and a contact form |
-
-**Admin dashboard (`/admin`)**
-
-- Passcode login with a signed, expiring session token
-- **Events** manager: create, edit and delete events (title, description, location, date, image)
-- **Donations** manager: create, edit and delete donation activities (title, description, date, image)
-- One-click **reset donations to default seed entries**
-- Direct image upload from the browser
-
-**Platform**
-
-- Server-side rendering with per-route SEO metadata and Open Graph / Twitter tags
-- Custom 404 page and global error boundary
-- Responsive layout with a shared header and footer
-- Edge caching headers on public list endpoints
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-| --- | --- |
-| Framework | TanStack Start, TanStack Router (file-based routes and server handlers) |
-| UI | React 19, Tailwind CSS 4, shadcn/ui (new-york style, slate base), Radix UI primitives, Lucide icons |
-| Forms and validation | React Hook Form, Zod |
-| Data fetching | Custom hooks over `fetch` (TanStack Query is installed) |
-| Backend runtime | Cloudflare Workers (`nodejs_compat`) |
-| Database | Cloudflare D1 (SQLite) |
-| Object storage | Cloudflare R2 (optional), with automatic D1 fallback |
-| Auth | HMAC-SHA256 signed tokens via Web Crypto |
-| Tooling | Vite 7, TypeScript 5.8 (strict), ESLint 9, Prettier 3, Wrangler |
-
-The Vite config uses `@lovable.dev/vite-tanstack-config`, which already bundles the TanStack Start, React, Tailwind, tsconfig-paths and Cloudflare plugins. Do not add them again in `vite.config.ts`.
-
----
-
-## Project Structure
-
-```
-PRGTrust-main/
-├── public/
-│   └── favicon.png
-├── schema.sql                  # D1 schema (events, donations, images)
-├── wrangler.jsonc              # Cloudflare Worker + D1 binding config
-├── vercel.json                 # SPA-style rewrite (Vercel)
-├── components.json             # shadcn/ui configuration
-├── vite.config.ts
-├── tsconfig.json               # strict TS, "@/*" -> "./src/*"
-├── eslint.config.js
-└── src/
-    ├── assets/                 # Logo, hero image, donation photos
-    ├── components/
-    │   ├── SiteHeader.tsx
-    │   ├── SiteFooter.tsx
-    │   └── ui/                 # shadcn/ui component library
-    ├── hooks/
-    │   ├── use-admin-auth.ts   # Login state, token storage, auth headers
-    │   ├── use-events.ts       # Events CRUD client
-    │   ├── use-donations.ts    # Donations CRUD client + seed reset
-    │   └── use-mobile.tsx
-    ├── lib/utils.ts            # cn() class helper
-    ├── routes/
-    │   ├── __root.tsx          # Document shell, meta tags, layout, 404
-    │   ├── index.tsx           # Home
-    │   ├── about.tsx
-    │   ├── programs.tsx
-    │   ├── get-involved.tsx
-    │   ├── contact.tsx
-    │   ├── admin.tsx           # Admin dashboard
-    │   └── api/                # Server route handlers (see API Reference)
-    │       ├── auth/{login,logout,verify}.ts
-    │       ├── donations/{index,$id,seed}.ts
-    │       ├── events/{index,$id}.ts
-    │       ├── upload.ts
-    │       └── images/$.ts
-    ├── server/
-    │   ├── auth.ts             # Token signing/verification, passcode check, cookies
-    │   ├── db.ts               # D1 access, CRUD, auto-init and seeding
-    │   ├── env.ts              # Environment/binding resolution + D1/R2 types
-    │   └── storage.ts          # Image upload/serve with R2 -> D1 fallback
-    ├── router.tsx              # Router factory + default error component
-    ├── routeTree.gen.ts        # Auto-generated by TanStack Router (do not edit)
-    └── styles.css              # Tailwind layers and design tokens
+```text
+frontend/
+  public/                  Static browser assets
+  src/
+    api/                   Central HTTP client
+    components/            Shared and admin UI
+    hooks/                 Browser state and API hooks
+    routes/                TanStack Router pages
+    assets/                Images and other imported assets
+    styles.css
+  package.json
+backend/
+  src/
+    config/                Environment and Cloudflare D1 client
+    controllers/            HTTP request handlers
+    middleware/             Express authentication/error middleware
+    models/db/              D1 queries and record mapping
+    routes/                 Express API route entry point
+    services/               Authentication, storage, event rules, data access
+    server.ts
+  uploads/                  Server-managed local image uploads
+  schema.sql
+  package.json
+package.json                npm workspace and convenience scripts only
 ```
 
----
+## Run locally
 
-## Getting Started
+1. Install workspace dependencies from the repository root:
 
-### Prerequisites
-
-- Node.js 20 or newer (the types target Node 22)
-- npm
-
-### Install and run
-
-```bash
-npm install
-npm run dev
-```
-
-The dev server starts through Vite. With no D1 binding available locally, the data layer falls back to an **in-memory store** (events start empty, donations start with the three seed entries). Data resets whenever the server restarts.
-
-### Run against a local Cloudflare runtime
-
-To test with real D1 bindings locally:
-
-```bash
-npm run build
-npm run cf-preview     # wrangler dev
-```
-
-Initialize the local D1 database if needed:
-
-```bash
-npx wrangler d1 execute prgtrust-db --local --file=./schema.sql
-```
-
-Tables are also created automatically on first request (see [Database](#database)).
-
----
-
-## Configuration
-
-Runtime configuration is read through `src/server/env.ts`, which merges `process.env`, a global `__env__`, and Cloudflare Worker bindings.
-
-| Name | Type | Purpose | Default if unset |
-| --- | --- | --- | --- |
-| `DB` | D1 binding | Primary database | In-memory fallback |
-| `STORAGE` | R2 binding (optional) | Image object storage | Images stored in D1 |
-| `ADMIN_PASSCODE` | variable / secret | Passcode for `/admin` login | Built-in development passcode |
-| `JWT_SECRET` | variable / secret | HMAC key for signing admin tokens | Built-in development secret |
-
-**Set both `ADMIN_PASSCODE` and `JWT_SECRET` to your own strong values before any real deployment.** For local development, put them in a `.dev.vars` file (already git-ignored):
-
-```ini
-ADMIN_PASSCODE=choose-a-strong-passcode
-JWT_SECRET=choose-a-long-random-string
-```
-
-For production, store them as Wrangler secrets:
-
-```bash
-npx wrangler secret put ADMIN_PASSCODE
-npx wrangler secret put JWT_SECRET
-```
-
----
-
-## Database
-
-`schema.sql` defines three tables:
-
-| Table | Columns |
-| --- | --- |
-| `events` | `id`, `title`, `description`, `image`, `location`, `event_date`, `created_at`, `updated_at` |
-| `donations` | `id`, `title`, `description`, `image`, `date`, `created_at`, `updated_at` |
-| `images` | `id`, `content_type`, `data` (base64), `size`, `created_at` |
-
-Indexes: `idx_events_date` and `idx_donations_date` (both descending).
-
-`initDb()` in `src/server/db.ts` runs `CREATE TABLE IF NOT EXISTS` statements on first use and seeds three default donation entries when the `donations` table is empty, so a fresh database works without a manual migration.
-
-To apply the schema to the remote database manually:
-
-```bash
-npx wrangler d1 execute prgtrust-db --remote --file=./schema.sql
-```
-
----
-
-## API Reference
-
-All endpoints live under `/api`. **Write operations require admin authentication** (see [Authentication](#authentication)). Errors return JSON in the form `{ "error": "message" }`.
-
-### Auth
-
-| Method | Endpoint | Auth | Description |
-| --- | --- | --- | --- |
-| `POST` | `/api/auth/login` | No | Body `{ "passcode": "..." }`. Returns a token and sets an HttpOnly cookie |
-| `POST` | `/api/auth/logout` | No | Clears the auth cookie |
-| `GET` | `/api/auth/verify` | Yes | Confirms the current session is valid |
-
-### Events
-
-| Method | Endpoint | Auth | Description |
-| --- | --- | --- | --- |
-| `GET` | `/api/events/` | No | List all events (cached 10s browser / 30s edge) |
-| `POST` | `/api/events/` | Yes | Create an event. Required: `title`, `description`, `eventDate`. Optional: `image`, `location` |
-| `GET` | `/api/events/:id` | No | Fetch one event |
-| `PUT` | `/api/events/:id` | Yes | Update an event |
-| `DELETE` | `/api/events/:id` | Yes | Delete an event |
-
-### Donations
-
-| Method | Endpoint | Auth | Description |
-| --- | --- | --- | --- |
-| `GET` | `/api/donations/` | No | List all donation entries (cached 10s browser / 30s edge) |
-| `POST` | `/api/donations/` | Yes | Create an entry. Required: `title`, `description`, `image`. Optional: `date` |
-| `GET` | `/api/donations/:id` | No | Fetch one entry |
-| `PUT` | `/api/donations/:id` | Yes | Update an entry |
-| `DELETE` | `/api/donations/:id` | Yes | Delete an entry |
-| `POST` | `/api/donations/seed` | Yes | Delete all entries and restore the default seeds |
-
-### Images
-
-| Method | Endpoint | Auth | Description |
-| --- | --- | --- | --- |
-| `POST` | `/api/upload` | Yes | Upload an image. Accepts `multipart/form-data` (field `file`), JSON (`dataUrl` or `base64` plus `contentType`), or a raw `image/*` body. Returns `{ success, url, key, size }` |
-| `GET` | `/api/images/:key` | No | Serve a stored image with immutable caching and ETag support |
-
-Example:
-
-```bash
-# Log in
-curl -X POST https://your-site/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"passcode":"YOUR_PASSCODE"}'
-
-# Create an event with the returned token
-curl -X POST https://your-site/api/events/ \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Health Camp","description":"Free check-ups","eventDate":"2026-11-15","location":"Anantapur"}'
-```
-
----
-
-## Authentication
-
-- A single shared admin passcode is checked with a constant-time comparison.
-- On success the server issues a token of the form `base64url(payload).hex(HMAC-SHA256)`, with payload `{ role: "admin", iat, exp }` and a **7-day** lifetime.
-- The token is returned in the response body and also set as an `HttpOnly; Secure; SameSite=Lax` cookie named `prg_admin_token`.
-- The browser client keeps the token in `sessionStorage` and sends it as `Authorization: Bearer <token>`. The server also accepts the cookie.
-- `/admin` verifies the session via `/api/auth/verify` on load.
-
----
-
-## Image Storage
-
-Uploads are validated and stored by `src/server/storage.ts`:
-
-- **Allowed types:** JPEG, PNG, WebP, GIF, SVG, AVIF
-- **Max size:** 10 MB
-- **Storage order:** R2 bucket if a `STORAGE` binding exists, otherwise (or if R2 fails) the `images` table in D1 as base64
-- **Serving:** every image is addressed as `/api/images/<key>` regardless of backend
-
-`wrangler.jsonc` currently declares only the D1 binding, so images are stored in D1. To use R2, create a bucket and add a binding named `STORAGE`:
-
-```jsonc
-"r2_buckets": [
-  { "binding": "STORAGE", "bucket_name": "prgtrust-images" }
-]
-```
-
----
-
-## Deployment
-
-### Cloudflare Workers (primary target)
-
-1. Create the D1 database and copy its ID into `wrangler.jsonc`:
-   ```bash
-   npx wrangler d1 create prgtrust-db
-   ```
-2. Apply the schema (optional, since tables auto-create):
-   ```bash
-   npx wrangler d1 execute prgtrust-db --remote --file=./schema.sql
-   ```
-3. Set production secrets (`ADMIN_PASSCODE`, `JWT_SECRET`) as shown in [Configuration](#configuration).
-4. Build and deploy:
-   ```bash
-   npm run build
-   npm run deploy
+   ```sh
+   npm install
    ```
 
-### Vercel
+2. Configure the backend:
 
-`vercel.json` contains a catch-all rewrite to `/`. Note that the D1 database and Worker bindings are Cloudflare-specific. On Vercel the app has no D1 binding and uses the non-persistent in-memory fallback, so Cloudflare is the recommended host for anything beyond a preview.
+   ```sh
+   copy backend/.env.example backend/.env
+   ```
 
----
+   Set `ADMIN_PASSCODE`, a unique `JWT_SECRET` of at least 32 characters, and
+   `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`, and
+   `CLOUDFLARE_API_TOKEN`. The Cloudflare token needs D1 read/write permissions.
+   `FRONTEND_URL` should contain the browser frontend origin(s), comma-separated.
 
-## Scripts
+3. Configure the frontend if the API is not at the local default:
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start the Vite dev server |
-| `npm run build` | Production build |
-| `npm run build:dev` | Build in development mode |
-| `npm run preview` | Preview the Vite build |
-| `npm run cf-preview` | Run the built app in a local Cloudflare runtime (`wrangler dev`) |
-| `npm run deploy` | Deploy to Cloudflare Workers (`wrangler deploy`) |
-| `npm run lint` | Lint with ESLint (Prettier enforced as a lint rule) |
-| `npm run format` | Format the codebase with Prettier |
+   ```sh
+   copy frontend/.env.example frontend/.env
+   ```
 
----
+   `VITE_API_URL` is the public Express API base URL, including `/api`.
 
-## Security Notes
+4. Start both applications from the root:
 
-Please address these before going live:
+   ```sh
+   npm run dev
+   ```
 
-1. **`wrangler.jsonc` contains a hard-coded `ADMIN_PASSCODE` and `JWT_SECRET` under `vars`.** Anyone with repository access can read them, and they are visible in the Cloudflare dashboard as plain variables. Remove them from the file, rotate both values, and use `wrangler secret put` instead.
-2. `src/server/auth.ts` falls back to a built-in default passcode and signing secret if the environment variables are missing. If a deployment ever loses its configuration, the admin area would silently accept publicly known defaults. Consider failing closed instead.
-3. There is no rate limiting or lockout on `/api/auth/login`, so a short passcode can be brute-forced. Add Cloudflare rate limiting or a lockout.
-4. SVG uploads are allowed. SVGs can carry scripts, so either remove `image/svg+xml` from the allow-list or serve images with a restrictive `Content-Security-Policy` and `Content-Disposition`.
-5. The auth cookie is `SameSite=Lax` and mutating endpoints accept it, so keep the Bearer-token flow as the primary mechanism and consider CSRF protection if cookie auth is relied upon.
+   The frontend runs at `http://localhost:5173`; the API runs at
+   `http://localhost:5000`.
 
----
+You may also run either app separately with `npm run dev --workspace=@prgtrust/frontend`
+or `npm run dev --workspace=@prgtrust/backend`. Build the frontend with
+`npm run build`. Start the backend with `npm start` or
+`npm start --workspace=@prgtrust/backend`.
 
-## Known Limitations
+## API overview
 
-- The **contact form is front-end only**: submitting it shows a "Thank you" message but does not send or store the message anywhere. Wire it to an email service or a D1 table to make it functional.
-- There is a single shared admin passcode and no per-user accounts or audit trail.
-- Locally, without a D1 binding, all data is held in memory and lost on restart.
-- Images stored in D1 as base64 inflate storage by about a third and are best replaced by R2 for larger galleries.
-- No automated test suite is included.
+- `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/verify`
+- `GET /api/settings`, `PUT /api/settings`
+- `GET /api/background`, `POST /api/background`, `PUT /api/background`,
+  `DELETE /api/background/:id`
+- `GET|POST /api/gallery`, `GET|PUT|DELETE /api/gallery/:id`
+- `GET|POST /api/members`, `GET|PUT|DELETE /api/members/:id`
+- `GET|POST /api/events`, `GET|PUT|DELETE /api/events/:id`
+- `GET|POST /api/donations`, `GET|PUT|DELETE /api/donations/:id`,
+  `POST /api/donations/seed`
+- `GET|POST /api/payments`, `GET|PUT /api/payments/:id`
+- `POST /api/upload`, `GET /api/images/:key`
 
----
+The backend calculates each event's `UPCOMING`, `TODAY`, or `COMPLETED` status;
+completed events are excluded from the home-page preview and shown on the Events page.
+Admin event management and the Events page remain available.
 
-## Contact
+## Storage and secrets
 
-PRG Social Welfare Trust, Anantapur District, Andhra Pradesh, India
-Email: info@prgtrust.org
+New uploaded images are validated and stored under `backend/uploads` by default;
+set `UPLOAD_DIR` to change that location. Existing D1 image records remain readable.
+Do not commit either app's `.env` file. Keep Cloudflare API tokens and admin secrets
+in backend environment variables only; never use a `VITE_*` variable for a secret.
 
+The obsolete Cloudflare Worker deployment config was removed because the API now runs
+as a standalone Node/Express service. Rotate any admin credentials or signing secrets
+that were previously stored in that Worker config.
