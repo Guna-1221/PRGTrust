@@ -125,6 +125,19 @@ or `npm run dev --workspace=@prgtrust/backend`. Build the frontend with
 The Worker login and payment throttles are isolate-local. For rate limits shared
 across all Worker instances, also configure Cloudflare's edge rate limiting.
 
+## Deploy the frontend
+
+The frontend is a single-page app. `frontend/wrangler.jsonc` configures Cloudflare's
+static asset fallback so direct visits and refreshes on routes such as `/admin` serve
+the app's `index.html`.
+
+In the `prgtrust` Workers Builds settings, set the root directory to `/frontend`,
+the build command to `npm run build`, the deploy command to
+`npx wrangler deploy --config wrangler.jsonc`, and the version command to
+`npx wrangler versions upload --config wrangler.jsonc`. Set the production build
+variable `VITE_API_URL` to the backend URL ending in `/api`, then save and redeploy
+the production branch.
+
 ## API overview
 
 - `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/verify`
