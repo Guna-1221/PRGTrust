@@ -1,0 +1,16 @@
+
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "prgtrust-api",
+  "account_id": "4f523b09f733ef74273589733f8a6bbc",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "prgtrust-db",
+      "database_id": "4ffe7445-af82-4cae-bf08-6a82065d8a58"
+    }
+  ]
+}

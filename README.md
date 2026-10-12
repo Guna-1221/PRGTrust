@@ -1,8 +1,8 @@
 # PRG Trust
 
-PRG Trust is split into a React/Vite frontend and an independent Node.js/Express API.
-The frontend only communicates with the backend over HTTP. Cloudflare D1 remains the
-database; the Node API uses Cloudflare's D1 REST API.
+PRG Trust is split into a React/Vite frontend and an Express API that can run locally
+on Node.js or deploy to Cloudflare Workers. The API uses Cloudflare D1 for application
+data and image storage in Workers.
 
 ## Project structure
 
@@ -26,6 +26,8 @@ backend/
     routes/                 Express API route entry point
     services/               Authentication, storage, event rules, data access
     server.ts
+    worker.ts               Cloudflare Workers entry point
+  wrangler.jsonc            Cloudflare D1 binding
   uploads/                  Server-managed local image uploads
   schema.sql
   package.json
@@ -73,6 +75,56 @@ or `npm run dev --workspace=@prgtrust/backend`. Build the frontend with
 `npm run build`. Start the backend with `npm start` or
 `npm start --workspace=@prgtrust/backend`.
 
+## Deploy the backend to Cloudflare Workers
+
+1. Install dependencies from the repository root with `npm install`, then log in:
+
+   ```sh
+   npx wrangler login
+   ```
+
+   The `CLOUDFLARE_API_TOKEN` currently in `backend/.env` takes precedence over
+   OAuth. For OAuth, remove it from `backend/.env` and the shell/Windows
+   environment before running `wrangler login`. To deploy with an API token instead,
+   it must belong to the configured account and have Workers Scripts Edit and D1
+   Edit permissions.
+
+2. Confirm the D1 database configured in `backend/wrangler.jsonc` exists in this
+   Cloudflare account. No R2 bucket or R2 billing setup is needed. Worker uploads
+   are stored in D1 and are limited to 1 MB per image to stay within D1's row-size
+   limit. The D1 free plan includes 500 MB per database, shared by application data
+   and images.
+
+3. Set production secrets. Use unique values; `JWT_SECRET` must be at least 32
+   characters and `ADMIN_PASSCODE` at least 8 characters:
+
+   ```sh
+   npx wrangler secret put ADMIN_PASSCODE --config backend/wrangler.jsonc
+   npx wrangler secret put JWT_SECRET --config backend/wrangler.jsonc
+   ```
+
+   Set `FRONTEND_URL` as a Worker variable in the Cloudflare dashboard to the
+   comma-separated frontend origin(s). Do not put secrets in Wrangler `vars`.
+
+4. Deploy from the repository root:
+
+   ```sh
+   npm run worker:deploy --workspace=@prgtrust/backend
+   ```
+
+   Test locally with `npm run worker:dev --workspace=@prgtrust/backend`; Wrangler
+   loads `backend/.env` for local development. The deployed Worker health endpoint
+   is `/health`. Set the frontend's `VITE_API_URL` to the deployed Worker URL ending
+   in `/api`, then rebuild and redeploy the frontend.
+
+   If your terminal is already in `backend`, run the secret commands with
+   `--config wrangler.jsonc` and deploy with `npm run worker:deploy` (or
+   `npx wrangler deploy --config wrangler.jsonc`). Do not prefix the config path
+   with `backend/` from that directory.
+
+The Worker login and payment throttles are isolate-local. For rate limits shared
+across all Worker instances, also configure Cloudflare's edge rate limiting.
+
 ## API overview
 
 - `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/verify`
@@ -93,11 +145,8 @@ Admin event management and the Events page remain available.
 
 ## Storage and secrets
 
-New uploaded images are validated and stored under `backend/uploads` by default;
-set `UPLOAD_DIR` to change that location. Existing D1 image records remain readable.
-Do not commit either app's `.env` file. Keep Cloudflare API tokens and admin secrets
-in backend environment variables only; never use a `VITE_*` variable for a secret.
-
-The obsolete Cloudflare Worker deployment config was removed because the API now runs
-as a standalone Node/Express service. Rotate any admin credentials or signing secrets
-that were previously stored in that Worker config.
+For local Node.js runs, new uploaded images are stored under `backend/uploads` by
+default; set `UPLOAD_DIR` to change that location. Workers store new images in D1
+because the Worker filesystem is not persistent. Existing D1 image records remain
+readable. Do not commit either app's `.env` file. Keep Cloudflare API tokens and
+admin secrets on the backend only; never use a `VITE_*` variable for a secret.

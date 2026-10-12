@@ -1,7 +1,7 @@
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { basename, resolve } from "node:path";
-import { getEnv, type R2Bucket } from "../config/env";
-import { getImageFromDb, deleteImageFromDb } from "../models/db";
+import { getEnv } from "../config/env";
+import { deleteImageFromDb, getImageFromDb, saveImageToDb } from "../models/db";
 
 const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
@@ -13,7 +13,8 @@ const ALLOWED_MIME_TYPES = new Set([
   "image/avif",
 ]);
 
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+const MAX_LOCAL_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_D1_FILE_SIZE_BYTES = 1 * 1024 * 1024;
 
 function getLocalUploadPath(key: string): string {
   if (!key || basename(key) !== key) throw new Error("Invalid image key.");
@@ -62,23 +63,31 @@ function base64ToUint8Array(base64: string): Uint8Array {
   return bytes;
 }
 
-export async function getStorage(): Promise<R2Bucket | null> {
-  const env = await getEnv();
-  return env.STORAGE || null;
+function uint8ArrayToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
 }
 
-export async function uploadImageToR2(
+export async function uploadImage(
   fileBuffer: ArrayBuffer | Uint8Array,
   contentType: string,
   originalFilename?: string,
 ): Promise<{ url: string; key: string; size: number }> {
   const bytes =
     fileBuffer instanceof Uint8Array ? fileBuffer : new Uint8Array(fileBuffer);
+  const env = await getEnv();
+  const maxFileSize = env.WORKERS_RUNTIME
+    ? MAX_D1_FILE_SIZE_BYTES
+    : MAX_LOCAL_FILE_SIZE_BYTES;
 
-  if (bytes.byteLength > MAX_FILE_SIZE_BYTES) {
-    throw new Error(
-      `Image exceeds maximum allowed size of 10MB (actual: ${(bytes.byteLength / (1024 * 1024)).toFixed(2)}MB).`,
+  if (bytes.byteLength > maxFileSize) {
+    const maxSizeInMb = maxFileSize / (1024 * 1024);
+    const error = new Error(
+      `Images must not exceed ${maxSizeInMb}MB${env.WORKERS_RUNTIME ? " when stored in D1" : ""}.`,
     );
+    Object.assign(error, { statusCode: 413 });
+    throw error;
   }
 
   const mime = (contentType || "image/jpeg").toLowerCase().split(";")[0].trim();
@@ -95,27 +104,16 @@ export async function uploadImageToR2(
     : `image-${randomSuffix}.${ext}`;
   const key = `prg-${Date.now()}-${randomSuffix}-${safeName}`;
 
-  const storage = await getStorage();
-  if (storage) {
-    try {
-      await storage.put(key, bytes, {
-        httpMetadata: {
-          contentType: mime,
-          cacheControl: "public, max-age=31536000, immutable",
-        },
-        customMetadata: {
-          originalName: originalFilename || "",
-          uploadedAt: new Date().toISOString(),
-        },
-      });
-      return {
-        url: `/api/images/${encodeURIComponent(key)}`,
-        key,
-        size: bytes.byteLength,
-      };
-    } catch (r2Err) {
-      console.warn("R2 upload fallback to D1 database:", r2Err);
+  if (env.WORKERS_RUNTIME) {
+    if (!env.DB) {
+      throw new Error("The D1 database binding is required to store images.");
     }
+    await saveImageToDb(key, uint8ArrayToBase64(bytes), mime, bytes.byteLength);
+    return {
+      url: `/api/images/${encodeURIComponent(key)}`,
+      key,
+      size: bytes.byteLength,
+    };
   }
 
   const filePath = getLocalUploadPath(key);
@@ -129,52 +127,40 @@ export async function uploadImageToR2(
   };
 }
 
-export async function getImageFromR2(key: string): Promise<{
-  body: ReadableStream | Uint8Array;
+export async function getImage(key: string): Promise<{
+  body: Uint8Array;
   contentType: string;
-  etag?: string;
   size?: number;
 } | null> {
-  const storage = await getStorage();
-  if (storage) {
+  const env = await getEnv();
+  if (!env.WORKERS_RUNTIME) {
     try {
-      const object = await storage.get(key);
-      if (object) {
-        return {
-          body: object.body,
-          contentType: object.httpMetadata?.contentType || "image/jpeg",
-          etag: object.etag,
-          size: object.size,
-        };
+      const bytes = await readFile(getLocalUploadPath(key));
+      const extension = key.split(".").pop()?.toLowerCase();
+      const contentType =
+        extension === "png"
+          ? "image/png"
+          : extension === "webp"
+            ? "image/webp"
+            : extension === "gif"
+              ? "image/gif"
+              : extension === "svg"
+                ? "image/svg+xml"
+                : extension === "avif"
+                  ? "image/avif"
+                  : "image/jpeg";
+      return {
+        body: new Uint8Array(bytes),
+        contentType,
+        size: bytes.byteLength,
+      };
+    } catch (error) {
+      if (
+        !(error instanceof Error && "code" in error && error.code === "ENOENT")
+      ) {
+        throw error;
       }
-    } catch {
-      // ignore
     }
-  }
-
-  try {
-    const bytes = await readFile(getLocalUploadPath(key));
-    const extension = key.split(".").pop()?.toLowerCase();
-    const contentType =
-      extension === "png"
-        ? "image/png"
-        : extension === "webp"
-          ? "image/webp"
-          : extension === "gif"
-            ? "image/gif"
-            : extension === "svg"
-              ? "image/svg+xml"
-              : extension === "avif"
-                ? "image/avif"
-                : "image/jpeg";
-    return {
-      body: new Uint8Array(bytes),
-      contentType,
-      size: bytes.byteLength,
-    };
-  } catch (error) {
-    if (!(error instanceof Error && "code" in error && error.code === "ENOENT"))
-      throw error;
   }
 
   const dbImage = await getImageFromDb(key);
@@ -190,20 +176,18 @@ export async function getImageFromR2(key: string): Promise<{
   return null;
 }
 
-export async function deleteImageFromR2(key: string): Promise<boolean> {
-  const storage = await getStorage();
-  if (storage) {
+export async function deleteImage(key: string): Promise<boolean> {
+  const env = await getEnv();
+  if (!env.WORKERS_RUNTIME) {
     try {
-      await storage.delete(key);
-    } catch {
-      // ignore
+      await unlink(getLocalUploadPath(key));
+    } catch (error) {
+      if (
+        !(error instanceof Error && "code" in error && error.code === "ENOENT")
+      ) {
+        throw error;
+      }
     }
-  }
-  try {
-    await unlink(getLocalUploadPath(key));
-  } catch (error) {
-    if (!(error instanceof Error && "code" in error && error.code === "ENOENT"))
-      throw error;
   }
   await deleteImageFromDb(key);
   return true;

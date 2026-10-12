@@ -51,9 +51,9 @@ import type {
 } from "../models/db/types";
 import { requireAdmin } from "../middleware/admin.middleware";
 import {
-  deleteImageFromR2,
-  getImageFromR2,
-  uploadImageToR2,
+  deleteImage,
+  getImage,
+  uploadImage,
 } from "../services/storage.service";
 import {
   createManagedEvent,
@@ -676,7 +676,7 @@ apiRouter.post(
     if (file) {
       res.json({
         success: true,
-        ...(await uploadImageToR2(
+        ...(await uploadImage(
           file.buffer,
           file.mimetype,
           file.originalname,
@@ -687,7 +687,7 @@ apiRouter.post(
     if (Buffer.isBuffer(req.body)) {
       res.json({
         success: true,
-        ...(await uploadImageToR2(
+        ...(await uploadImage(
           req.body,
           req.get("content-type") || "image/jpeg",
           "upload",
@@ -713,7 +713,7 @@ apiRouter.post(
       }
       res.json({
         success: true,
-        ...(await uploadImageToR2(
+        ...(await uploadImage(
           Buffer.from(base64, "base64"),
           mime,
           stringValue(body.filename),
@@ -728,28 +728,15 @@ apiRouter.post(
 apiRouter.get(
   "/images/:key",
   asyncRoute(async (req, res) => {
-    const image = await getImageFromR2(paramKey(req));
+    const image = await getImage(paramKey(req));
     if (!image) {
       res.status(404).send("Image not found.");
       return;
     }
-    if (image.etag && req.get("If-None-Match") === image.etag) {
-      res.status(304).end();
-      return;
-    }
     res.setHeader("Content-Type", image.contentType || "image/jpeg");
     res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-    if (image.etag) res.setHeader("ETag", image.etag);
     if (image.size) res.setHeader("Content-Length", String(image.size));
-    if (image.body instanceof Uint8Array) {
-      res.send(Buffer.from(image.body));
-      return;
-    }
-    res.send(
-      Buffer.from(
-        await new globalThis.Response(image.body as BodyInit).arrayBuffer(),
-      ),
-    );
+    res.send(Buffer.from(image.body));
   }),
 );
 
@@ -757,7 +744,7 @@ apiRouter.delete(
   "/images/:key",
   admin,
   asyncRoute(async (req, res) => {
-    await deleteImageFromR2(paramKey(req));
+    await deleteImage(paramKey(req));
     res.json({ success: true });
   }),
 );
