@@ -7,6 +7,11 @@ CREATE TABLE IF NOT EXISTS events (
   image TEXT,
   location TEXT,
   event_date TEXT NOT NULL,
+  start_time TEXT,
+  end_time TEXT,
+  end_date TEXT,
+  registration_link TEXT,
+  contact_info TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
