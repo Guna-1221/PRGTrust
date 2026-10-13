@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import hero from "@/assets/hero-community.jpg";
 import {
   GraduationCap,
   HeartPulse,
@@ -144,14 +143,15 @@ function Reveal({
 function HomePage() {
   const { items: donations } = useDonations();
   const { items: events } = useEvents();
-  const { backgroundImage } = useBackground();
+  const { desktopBackgroundImage, mobileBackgroundImage } = useBackground();
   const { items: galleryItems } = useGallery();
   const galleryImages = combineImages(galleryItems, donations);
   const { items: members } = useMembers(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [galleryPaused, setGalleryPaused] = useState(false);
 
-  const heroImage = backgroundImage || hero;
+  const heroImage = desktopBackgroundImage || "/background.jpeg";
+  const mobileHeroImage = mobileBackgroundImage || "/mobilebg.jpeg";
   const chairman = findFounderMember(members);
 
   const activeEvents = events.filter(
@@ -170,64 +170,43 @@ function HomePage() {
   return (
     <>
       {/* HERO */}
-      <section className="hero-premium grain relative">
-        <div className="absolute inset-0 -z-10" style={{ background: "var(--gradient-hero)" }} />
+      <section className="hero-premium hero-home grain relative">
         <div
-          className="absolute inset-0 -z-10 opacity-25 mix-blend-overlay"
-          style={{ background: `url(${heroImage}) center/cover no-repeat` }}
+          className="hero-home-background absolute inset-0 -z-10"
+          style={
+            {
+              "--hero-desktop-image": `url("${heroImage}")`,
+              "--hero-mobile-image": `url("${mobileHeroImage}")`,
+            } as CSSProperties
+          }
           aria-hidden
         />
-        <span className="orb orb-orange" aria-hidden="true" />
-        <span className="orb orb-green" aria-hidden="true" />
-        <div className="hero-grid" aria-hidden="true" />
 
-        <div className="container-x relative grid gap-12 py-16 md:grid-cols-12 md:items-center md:py-24 lg:py-28">
-          <div className="text-white md:col-span-9">
-            <span
-              className="hero-rise inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-white/90 backdrop-blur"
-              style={heroDelay(60)}
+        <div className="container-x relative z-10 flex w-full flex-wrap items-end justify-between gap-5 pb-8 pt-24 sm:pb-10">
+          <div className="hero-rise flex flex-wrap gap-3" style={heroDelay(160)}>
+            <Link
+              to="/get-involved"
+              className="group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold btn-primary"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-orange" /> Registered Public
-              Charitable Trust · Reg 25/2026
-            </span>
-
-            <h1 className="mt-6 font-display text-4xl leading-[1.05] tracking-tight text-balance sm:text-5xl md:text-6xl">
-              <span className="hero-rise block" style={heroDelay(160)}>
-                Together for a kinder,
-              </span>
-              <span className="hero-rise block text-brand-orange" style={heroDelay(280)}>
-                stronger tomorrow.
-              </span>
-            </h1>
-
-            <p
-              className="hero-rise mt-6 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg"
-              style={heroDelay(420)}
+              Get Involved
+              <ArrowRight
+                size={16}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </Link>
+            <Link
+              to="/programs"
+              className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold btn-outline-light"
             >
-              PRG Social Welfare Trust serves communities across Anantapur with compassion —
-              uplifting children, women, and the environment through sustainable, transparent
-              action.
-            </p>
-
-            <div className="hero-rise mt-9 flex flex-wrap gap-3" style={heroDelay(540)}>
-              <Link
-                to="/get-involved"
-                className="group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold btn-primary"
-              >
-                Get Involved
-                <ArrowRight
-                  size={16}
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />
-              </Link>
-              <Link
-                to="/programs"
-                className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold btn-outline-light"
-              >
-                Our Programs
-              </Link>
-            </div>
+              Our Programs
+            </Link>
           </div>
+          <p
+            className="hero-rise ml-auto rounded-md border border-white/25 bg-black/30 px-3 py-2 text-right text-xs font-medium text-white backdrop-blur sm:text-sm"
+            style={heroDelay(280)}
+          >
+            Registered Public Charitable Trust · Reg 25/2026
+          </p>
         </div>
         <div className="hero-edge" aria-hidden="true" />
       </section>

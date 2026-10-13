@@ -401,6 +401,19 @@
     isolation: isolate;
     overflow: hidden;
   }
+  .hero-home {
+    display: flex;
+    min-height: max(36rem, calc(100svh - 5rem));
+    align-items: flex-end;
+  }
+  .hero-home-background {
+    background-size: cover;
+    background-position: center, center;
+    background-repeat: no-repeat;
+    background-image:
+      linear-gradient(0deg, rgb(4 16 29 / 58%), transparent 38%),
+      var(--hero-desktop-image);
+  }
   .hero-premium.grain::after {
     z-index: -1;
     opacity: 0.09;
@@ -1863,6 +1876,19 @@
   }
 
   @media (max-width: 767px) {
+    .hero-home {
+      min-height: max(40rem, calc(100svh - 5rem));
+    }
+    .hero-home-background {
+      background-position: center, center;
+      background-size: auto, cover;
+      background-image:
+        linear-gradient(0deg, rgb(4 16 29 / 58%), transparent 38%),
+        var(--hero-mobile-image);
+    }
+    .hero-home > .container-x {
+      padding-top: 1.5rem;
+    }
     .orb-green {
       display: none;
     }

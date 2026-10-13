@@ -37,15 +37,20 @@ export function SettingsManager() {
     <section className="mt-8 max-w-4xl">
       <div className="flex items-center gap-2 mb-6">
         <Settings size={20} className="text-brand-orange-deep" />
-        <h2 className="text-xl font-semibold">Site Settings</h2>
+        <div>
+          <h2 className="text-xl font-semibold">Site Settings</h2>
+          <p className="mt-1 text-sm text-foreground/60">All settings are optional.</p>
+        </div>
       </div>
 
       <form onSubmit={submit} className="card-soft p-6 space-y-8">
         <div>
-          <h3 className="text-lg font-medium border-b border-border pb-2 mb-4">Organization Info</h3>
+          <h3 className="text-lg font-medium border-b border-border pb-2 mb-4">
+            Organization Info
+          </h3>
           <div className="grid gap-5 md:grid-cols-2">
             <div>
-              <label className="text-sm font-medium">Organization Name</label>
+              <label className="text-sm font-medium">Organization Name (optional)</label>
               <input
                 value={formData.orgName || ""}
                 onChange={(e) => handleChange("orgName", e.target.value)}
@@ -53,7 +58,7 @@ export function SettingsManager() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Email</label>
+              <label className="text-sm font-medium">Email (optional)</label>
               <input
                 value={formData.email || ""}
                 onChange={(e) => handleChange("email", e.target.value)}
@@ -61,7 +66,7 @@ export function SettingsManager() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Phone</label>
+              <label className="text-sm font-medium">Phone (optional)</label>
               <input
                 value={formData.phone || ""}
                 onChange={(e) => handleChange("phone", e.target.value)}
@@ -69,7 +74,7 @@ export function SettingsManager() {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="text-sm font-medium">Address</label>
+              <label className="text-sm font-medium">Address (optional)</label>
               <textarea
                 value={formData.address || ""}
                 onChange={(e) => handleChange("address", e.target.value)}
@@ -78,7 +83,7 @@ export function SettingsManager() {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="text-sm font-medium">Footer Description</label>
+              <label className="text-sm font-medium">Footer Description (optional)</label>
               <textarea
                 value={formData.footerDescription || ""}
                 onChange={(e) => handleChange("footerDescription", e.target.value)}
@@ -93,7 +98,7 @@ export function SettingsManager() {
           <h3 className="text-lg font-medium border-b border-border pb-2 mb-4">Social Links</h3>
           <div className="grid gap-5 md:grid-cols-2">
             <div>
-              <label className="text-sm font-medium">Facebook URL</label>
+              <label className="text-sm font-medium">Facebook URL (optional)</label>
               <input
                 value={formData.socialFacebook || ""}
                 onChange={(e) => handleChange("socialFacebook", e.target.value)}
@@ -101,7 +106,7 @@ export function SettingsManager() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Instagram URL</label>
+              <label className="text-sm font-medium">Instagram URL (optional)</label>
               <input
                 value={formData.socialInstagram || ""}
                 onChange={(e) => handleChange("socialInstagram", e.target.value)}
@@ -109,7 +114,7 @@ export function SettingsManager() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Twitter / X URL</label>
+              <label className="text-sm font-medium">Twitter / X URL (optional)</label>
               <input
                 value={formData.socialTwitter || ""}
                 onChange={(e) => handleChange("socialTwitter", e.target.value)}
@@ -117,7 +122,7 @@ export function SettingsManager() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium">YouTube URL</label>
+              <label className="text-sm font-medium">YouTube URL (optional)</label>
               <input
                 value={formData.socialYoutube || ""}
                 onChange={(e) => handleChange("socialYoutube", e.target.value)}
@@ -131,7 +136,7 @@ export function SettingsManager() {
           <h3 className="text-lg font-medium border-b border-border pb-2 mb-4">Misc</h3>
           <div className="grid gap-5 md:grid-cols-2">
             <div>
-              <label className="text-sm font-medium">Copyright Text</label>
+              <label className="text-sm font-medium">Copyright Text (optional)</label>
               <input
                 value={formData.copyrightText || ""}
                 onChange={(e) => handleChange("copyrightText", e.target.value)}

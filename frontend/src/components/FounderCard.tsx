@@ -1,15 +1,13 @@
 import { Mail, Quote } from "lucide-react";
 import type { Member } from "@/hooks/use-members";
+import { DEFAULT_FOUNDER_PROFILE } from "@/lib/member-display";
 
 type FounderCardProps = {
   member?: Member;
 };
 
-const fallbackBiography =
-  "A lifelong advocate for community welfare, Mr. Ramanjaneyulu founded PRG Social Welfare Trust to bring sustainable change to underprivileged families across Anantapur — believing collective effort builds a better society.";
-
 export function FounderCard({ member }: FounderCardProps) {
-  const name = member?.name || "Mr. Y. Ramanjaneyulu";
+  const name = member ? member.name : DEFAULT_FOUNDER_PROFILE.name;
   const initials = name
     .split(/\s+/)
     .map((part) => part[0])
@@ -26,16 +24,22 @@ export function FounderCard({ member }: FounderCardProps) {
           <span aria-hidden="true">{initials}</span>
         )}
       </div>
-      <h2>{name}</h2>
-      <p className="founder-profile-role">{member?.position || "Founder & Chairman"}</p>
+      {name && <h2>{name}</h2>}
+      {(member ? member.position : DEFAULT_FOUNDER_PROFILE.position) && (
+        <p className="founder-profile-role">
+          {member ? member.position : DEFAULT_FOUNDER_PROFILE.position}
+        </p>
+      )}
       {member?.qualification && (
         <p className="founder-profile-qualification">{member.qualification}</p>
       )}
-      <div className="founder-profile-biography">
-        <Quote size={18} aria-hidden="true" />
-        <p>{member?.biography || fallbackBiography}</p>
-        <Quote size={18} aria-hidden="true" />
-      </div>
+      {(member ? member.biography : DEFAULT_FOUNDER_PROFILE.biography) && (
+        <div className="founder-profile-biography">
+          <Quote size={18} aria-hidden="true" />
+          <p>{member ? member.biography : DEFAULT_FOUNDER_PROFILE.biography}</p>
+          <Quote size={18} aria-hidden="true" />
+        </div>
+      )}
       {member?.email && (
         <a className="founder-profile-email" href={`mailto:${member.email}`}>
           <Mail size={16} />

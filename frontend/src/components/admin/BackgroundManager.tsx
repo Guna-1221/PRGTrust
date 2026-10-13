@@ -1,144 +1,167 @@
-import { apiFetch } from "@/api/client";
-import { useState, useRef, type ChangeEvent } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import { useBackground } from "@/hooks/use-background";
-import { getAdminAuthHeaders } from "@/hooks/use-admin-auth";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 import { uploadFileToR2 } from "./upload-helper";
-import { ImagePlus, Trash2, CloudUpload, Loader2, Image as ImageIcon } from "lucide-react";
+import { CloudUpload, Image as ImageIcon, ImagePlus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+type BackgroundTarget = "desktop" | "mobile";
+
 export function BackgroundManager() {
-  const { backgroundImage, isLoading } = useBackground();
-  const [isUploading, setIsUploading] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const {
+    desktopBackgroundImage,
+    mobileBackgroundImage,
+    isLoading: isBackgroundLoading,
+  } = useBackground();
+  const { settings, isLoading: areSettingsLoading, updateSettings } = useSiteSettings();
+  const [processingTarget, setProcessingTarget] = useState<BackgroundTarget | null>(null);
+  const desktopFileRef = useRef<HTMLInputElement>(null);
+  const mobileFileRef = useRef<HTMLInputElement>(null);
 
-  const onFile = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 10 * 1024 * 1024) {
+  const saveImage = async (target: BackgroundTarget, file?: File) => {
+    if (file && file.size > 10 * 1024 * 1024) {
       toast.error("Image too large (max 10MB). Please pick a smaller image.");
       return;
     }
 
+    const settingKey = target === "desktop" ? "homeDesktopBackground" : "homeMobileBackground";
     try {
-      setIsUploading(true);
-      const url = await uploadFileToR2(file);
-
-      setIsProcessing(true);
-      const res = await apiFetch("/api/background/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...getAdminAuthHeaders(),
-        },
-        body: JSON.stringify({ image: url }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to save background image.");
-      }
+      setProcessingTarget(target);
+      const imageUrl = file ? await uploadFileToR2(file) : "";
+      const saved = await updateSettings({ ...settings, [settingKey]: imageUrl });
+      if (!saved) throw new Error("Failed to save background image setting.");
 
       window.dispatchEvent(new Event("prg-background-updated"));
-      toast.success("Background image updated successfully!");
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to update background.";
-      toast.error(msg);
+      toast.success(`${target === "desktop" ? "Desktop" : "Mobile"} background updated.`);
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to update background.");
     } finally {
-      setIsUploading(false);
-      setIsProcessing(false);
+      setProcessingTarget(null);
     }
   };
 
-  const handleRemove = async () => {
-    if (!confirm("Are you sure you want to remove the current background image?")) return;
-
-    try {
-      setIsProcessing(true);
-      const res = await apiFetch("/api/background/", {
-        method: "DELETE",
-        headers: getAdminAuthHeaders(),
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to remove background image.");
-      }
-
-      window.dispatchEvent(new Event("prg-background-updated"));
-      toast.success("Background image removed successfully!");
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to remove background.";
-      toast.error(msg);
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleFile = (target: BackgroundTarget) => async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (file) await saveImage(target, file);
   };
 
-  if (isLoading) {
+  if (isBackgroundLoading || areSettingsLoading) {
     return (
-      <div className="mt-12 flex justify-center items-center gap-2 text-foreground/60">
+      <div className="mt-12 flex items-center justify-center gap-2 text-foreground/60">
         <Loader2 className="animate-spin text-brand-blue" size={24} />
         <p className="text-sm">Loading background data…</p>
       </div>
     );
   }
 
+  const backgrounds: {
+    target: BackgroundTarget;
+    title: string;
+    image: string | null;
+    fallback: string;
+    fileRef: typeof desktopFileRef;
+  }[] = [
+    {
+      target: "desktop",
+      title: "Desktop Background",
+      image: desktopBackgroundImage,
+      fallback: "/background.jpeg",
+      fileRef: desktopFileRef,
+    },
+    {
+      target: "mobile",
+      title: "Mobile Background",
+      image: mobileBackgroundImage,
+      fallback: "/mobilebg.jpeg",
+      fileRef: mobileFileRef,
+    },
+  ];
+
   return (
-    <section className="mt-8 max-w-2xl">
-      <div className="flex items-center gap-2 mb-6">
+    <section className="mt-8 max-w-4xl">
+      <div className="mb-6 flex items-center gap-2">
         <ImageIcon size={20} className="text-brand-orange-deep" />
-        <h2 className="text-xl font-semibold">Home Background Image</h2>
+        <div>
+          <h2 className="text-xl font-semibold">Home Background Images</h2>
+          <p className="mt-1 text-sm text-foreground/60">
+            Set separate images for desktop and mobile screens.
+          </p>
+        </div>
       </div>
 
-      <div className="card-soft p-6">
-        <label className="text-sm font-medium mb-2 block">Current Background</label>
-        <div className="aspect-video w-full rounded-lg border border-dashed border-border bg-secondary/50 overflow-hidden flex items-center justify-center relative">
-          {isUploading || isProcessing ? (
-            <div className="flex flex-col items-center gap-2 text-foreground/60 text-sm p-4">
-              <Loader2 className="animate-spin text-brand-blue" size={28} />
-              <span>{isUploading ? "Uploading…" : "Saving…"}</span>
+      <div className="grid gap-6 md:grid-cols-2">
+        {backgrounds.map(({ target, title, image, fallback, fileRef }) => {
+          const isProcessing = processingTarget === target;
+          const previewImage = image || fallback;
+
+          return (
+            <div key={target} className="card-soft p-6">
+              <label className="mb-2 block text-sm font-medium">{title}</label>
+              <div
+                className={`w-full overflow-hidden rounded-lg border border-dashed border-border bg-secondary/50 ${
+                  target === "desktop" ? "aspect-video" : "mx-auto aspect-[9/16] max-h-[32rem]"
+                }`}
+              >
+                {isProcessing ? (
+                  <div className="flex h-full flex-col items-center justify-center gap-2 text-sm text-foreground/60">
+                    <Loader2 className="animate-spin text-brand-blue" size={28} />
+                    <span>Uploading and saving…</span>
+                  </div>
+                ) : (
+                  <img
+                    src={previewImage}
+                    alt={`${title} preview`}
+                    className="h-full w-full object-cover"
+                  />
+                )}
+              </div>
+
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFile(target)}
+                className="hidden"
+              />
+
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  disabled={processingTarget !== null}
+                  className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold btn-primary disabled:opacity-50"
+                >
+                  <CloudUpload size={16} /> {image ? "Change image" : "Upload image"}
+                </button>
+                {image && (
+                  <button
+                    type="button"
+                    onClick={() => void saveImage(target)}
+                    disabled={processingTarget !== null}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 px-4 py-2.5 text-sm font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="animate-spin" size={16} />
+                    ) : (
+                      <Trash2 size={16} />
+                    )}
+                    Remove override
+                  </button>
+                )}
+              </div>
+              {!image && (
+                <p className="mt-3 flex items-center gap-1.5 text-xs text-foreground/50">
+                  <ImagePlus size={14} /> Showing the built-in default image.
+                </p>
+              )}
             </div>
-          ) : backgroundImage ? (
-            <img
-              src={backgroundImage}
-              alt="Background preview"
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="text-center text-foreground/50 text-sm p-4">
-              <ImagePlus className="mx-auto mb-2" />
-              No background image set
-            </div>
-          )}
-        </div>
-
-        <input ref={fileRef} type="file" accept="image/*" onChange={onFile} className="hidden" />
-
-        <div className="mt-4 flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            disabled={isUploading || isProcessing}
-            className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold btn-primary disabled:opacity-50"
-          >
-            <CloudUpload size={16} /> {backgroundImage ? "Change image" : "Upload image"}
-          </button>
-
-          {backgroundImage && (
-            <button
-              type="button"
-              onClick={handleRemove}
-              disabled={isUploading || isProcessing}
-              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-semibold border border-destructive/30 text-destructive hover:bg-destructive/10 disabled:opacity-50"
-            >
-              <Trash2 size={16} /> Remove
-            </button>
-          )}
-        </div>
-        <p className="mt-3 text-xs text-foreground/50">
-          Max 10MB. Stored online in Cloudflare R2 bucket.
-        </p>
+          );
+        })}
       </div>
+      <p className="mt-4 text-xs text-foreground/50">
+        Max 10MB per image. Uploaded images are stored online in Cloudflare R2.
+      </p>
     </section>
   );
 }

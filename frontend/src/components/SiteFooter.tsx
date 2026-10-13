@@ -28,9 +28,7 @@ export function SiteFooter() {
         if (data) {
           setSettings((prev) => ({
             ...prev,
-            ...Object.fromEntries(
-              Object.entries(data).filter(([, v]) => v !== undefined && v !== ""),
-            ),
+            ...Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined)),
           }));
         }
       })
@@ -43,9 +41,7 @@ export function SiteFooter() {
           if (data) {
             setSettings((prev) => ({
               ...prev,
-              ...Object.fromEntries(
-                Object.entries(data).filter(([, v]) => v !== undefined && v !== ""),
-              ),
+              ...Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined)),
             }));
           }
         })
@@ -69,10 +65,10 @@ export function SiteFooter() {
           <div className="flex items-center gap-3">
             <img
               src={logo}
-              width={48}
-              height={48}
-              alt=""
-              className="h-12 w-12 rounded-full ring-2 ring-white/30"
+              width={64}
+              height={64}
+              alt="PRG Social Welfare Trust logo"
+              className="h-14 w-14 rounded-full bg-white object-cover ring-2 ring-white/80 shadow-md"
             />
             <div>
               <div className="font-display text-lg font-semibold">{settings.orgName}</div>

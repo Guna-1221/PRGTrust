@@ -2,18 +2,24 @@ import { useState } from "react";
 import { useDonationPayments, type DonationPayment } from "@/hooks/use-donation-payments";
 import { DollarSign, Loader2 } from "lucide-react";
 
-type PaymentStatus = DonationPayment['paymentStatus'];
+type PaymentStatus = DonationPayment["paymentStatus"];
 
 export function PaymentsManager() {
-  const [activeTab, setActiveTab] = useState<PaymentStatus | 'all'>('all');
-  const { items, isLoading, updateStatus } = useDonationPayments(activeTab === 'all' ? undefined : activeTab);
+  const [activeTab, setActiveTab] = useState<PaymentStatus | "all">("all");
+  const { items, isLoading, updateStatus } = useDonationPayments(
+    activeTab === "all" ? undefined : activeTab,
+  );
 
   const getStatusColor = (status: PaymentStatus) => {
     switch (status) {
-      case 'successful': return 'bg-brand-green/10 text-brand-green border-brand-green/20';
-      case 'pending': return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20';
-      case 'failed': return 'bg-destructive/10 text-destructive border-destructive/20';
-      case 'cancelled': return 'bg-foreground/10 text-foreground border-foreground/20';
+      case "successful":
+        return "bg-brand-green/10 text-brand-green border-brand-green/20";
+      case "pending":
+        return "bg-yellow-500/10 text-yellow-600 border-yellow-500/20";
+      case "failed":
+        return "bg-destructive/10 text-destructive border-destructive/20";
+      case "cancelled":
+        return "bg-foreground/10 text-foreground border-foreground/20";
     }
   };
 
@@ -25,7 +31,7 @@ export function PaymentsManager() {
       </div>
 
       <div className="mb-6 inline-flex rounded-full border border-border p-1 overflow-x-auto w-full md:w-auto hide-scrollbar">
-        {(['all', 'pending', 'successful', 'failed', 'cancelled'] as const).map((t) => (
+        {(["all", "pending", "successful", "failed", "cancelled"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setActiveTab(t)}
@@ -67,12 +73,14 @@ export function PaymentsManager() {
                     <td className="p-4">
                       <p className="font-medium">{p.donorName}</p>
                       <p className="text-xs text-foreground/60 mt-1">
-                        {p.donorEmail} {p.donorEmail && p.donorPhone && '·'} {p.donorPhone}
+                        {p.donorEmail} {p.donorEmail && p.donorPhone && "·"} {p.donorPhone}
                       </p>
                     </td>
-                    <td className="p-4 font-medium">₹{p.amount.toLocaleString('en-IN')}</td>
+                    <td className="p-4 font-medium">₹{p.amount.toLocaleString("en-IN")}</td>
                     <td className="p-4">
-                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${getStatusColor(p.paymentStatus)}`}>
+                      <span
+                        className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${getStatusColor(p.paymentStatus)}`}
+                      >
                         {p.paymentStatus}
                       </span>
                     </td>
@@ -80,7 +88,7 @@ export function PaymentsManager() {
                       {new Date(p.createdAt).toLocaleString()}
                     </td>
                     <td className="p-4 text-xs text-foreground/70 font-mono">
-                      {p.transactionId || '-'}
+                      {p.transactionId || "-"}
                     </td>
                     <td className="p-4">
                       <select

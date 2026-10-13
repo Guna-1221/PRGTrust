@@ -40,7 +40,7 @@ export function useSiteSettings() {
     async (newSettings: Record<string, string>): Promise<boolean> => {
       try {
         const res = await apiFetch("/api/settings/", {
-          method: "POST", // Usually POST to update multiple settings or PUT
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             ...getAdminAuthHeaders(),

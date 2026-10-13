@@ -1,14 +1,14 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { useSubmitDonation } from '@/hooks/use-donation-payments';
-import { useState } from 'react';
-import { HeartHandshake, IndianRupee, CheckCircle2, Loader2 } from 'lucide-react';
+import { createFileRoute } from "@tanstack/react-router";
+import { useSubmitDonation } from "@/hooks/use-donation-payments";
+import { useState } from "react";
+import { HeartHandshake, IndianRupee, CheckCircle2, Loader2 } from "lucide-react";
 
-export const Route = createFileRoute('/donate')({
+export const Route = createFileRoute("/donate")({
   head: () => ({
     meta: [
-      { title: 'Donate — PRG Social Welfare Trust' },
-      { name: 'description', content: 'Support PRG Social Welfare Trust with your donation.' },
-      { property: 'og:title', content: 'Donate — PRG Social Welfare Trust' },
+      { title: "Donate — PRG Social Welfare Trust" },
+      { name: "description", content: "Support PRG Social Welfare Trust with your donation." },
+      { property: "og:title", content: "Donate — PRG Social Welfare Trust" },
     ],
   }),
   component: DonatePage,
@@ -19,32 +19,32 @@ const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000];
 function DonatePage() {
   const { submit, isSubmitting } = useSubmitDonation();
   const [isSuccess, setIsSuccess] = useState(false);
-  const [amount, setAmount] = useState<number | 'custom'>(1000);
-  const [customAmount, setCustomAmount] = useState<string>('');
-  
+  const [amount, setAmount] = useState<number | "custom">(1000);
+  const [customAmount, setCustomAmount] = useState<string>("");
+
   const [formData, setFormData] = useState({
-    donorName: '',
-    donorEmail: '',
-    donorPhone: '',
-    message: ''
+    donorName: "",
+    donorEmail: "",
+    donorPhone: "",
+    message: "",
   });
 
-  const handleAmountSelect = (val: number | 'custom') => {
+  const handleAmountSelect = (val: number | "custom") => {
     setAmount(val);
-    if (val !== 'custom') {
-      setCustomAmount('');
+    if (val !== "custom") {
+      setCustomAmount("");
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const finalAmount = amount === 'custom' ? Number(customAmount) : amount;
+
+    const finalAmount = amount === "custom" ? Number(customAmount) : amount;
     if (!finalAmount || finalAmount <= 0) return;
     if (!formData.donorName.trim()) return;
 
@@ -54,23 +54,23 @@ function DonatePage() {
         donorEmail: formData.donorEmail,
         donorPhone: formData.donorPhone,
         message: formData.message,
-        amount: finalAmount
+        amount: finalAmount,
       });
       setIsSuccess(true);
     } catch (error) {
-      console.error('Donation submission failed:', error);
+      console.error("Donation submission failed:", error);
     }
   };
 
   const resetForm = () => {
     setIsSuccess(false);
     setAmount(1000);
-    setCustomAmount('');
+    setCustomAmount("");
     setFormData({
-      donorName: '',
-      donorEmail: '',
-      donorPhone: '',
-      message: ''
+      donorName: "",
+      donorEmail: "",
+      donorPhone: "",
+      message: "",
     });
   };
 
@@ -81,7 +81,8 @@ function DonatePage() {
           <div className="accent-bar" />
           <h1 className="mt-4 text-4xl md:text-5xl">Make a Donation</h1>
           <p className="mt-4 max-w-2xl text-white/85 text-lg">
-            Your support helps us bring education, healthcare, and sustainable development to those who need it most.
+            Your support helps us bring education, healthcare, and sustainable development to those
+            who need it most.
           </p>
         </div>
       </section>
@@ -95,7 +96,8 @@ function DonatePage() {
               </div>
               <h2 className="text-3xl font-display mb-4">Thank you for your generosity!</h2>
               <p className="text-lg text-foreground/70 max-w-2xl mx-auto mb-8">
-                Your donation request has been recorded. Our team will contact you shortly with payment details.
+                Your donation request has been recorded. Our team will contact you shortly with
+                payment details.
               </p>
               <button
                 onClick={resetForm}
@@ -113,10 +115,11 @@ function DonatePage() {
                     Why Donate?
                   </h2>
                   <p className="mt-3 text-foreground/75 leading-relaxed">
-                    Every rupee goes towards empowering underprivileged communities in Anantapur through our various initiatives in education, health, and environment.
+                    Every rupee goes towards empowering underprivileged communities in Anantapur
+                    through our various initiatives in education, health, and environment.
                   </p>
                 </div>
-                
+
                 <div className="card-soft p-6 bg-brand-blue/5 border-none">
                   <h3 className="font-semibold mb-2">Impact</h3>
                   <ul className="space-y-3 text-sm text-foreground/75">
@@ -150,27 +153,31 @@ function DonatePage() {
                           onClick={() => handleAmountSelect(preset)}
                           className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-all ${
                             amount === preset
-                              ? 'border-brand-blue bg-brand-blue/10 text-brand-blue'
-                              : 'border-input hover:border-brand-blue/50 text-foreground'
+                              ? "border-brand-blue bg-brand-blue/10 text-brand-blue"
+                              : "border-input hover:border-brand-blue/50 text-foreground"
                           }`}
                         >
-                          {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(preset)}
+                          {new Intl.NumberFormat("en-IN", {
+                            style: "currency",
+                            currency: "INR",
+                            maximumFractionDigits: 0,
+                          }).format(preset)}
                         </button>
                       ))}
                       <button
                         type="button"
-                        onClick={() => handleAmountSelect('custom')}
+                        onClick={() => handleAmountSelect("custom")}
                         className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-all ${
-                          amount === 'custom'
-                            ? 'border-brand-blue bg-brand-blue/10 text-brand-blue'
-                            : 'border-input hover:border-brand-blue/50 text-foreground'
+                          amount === "custom"
+                            ? "border-brand-blue bg-brand-blue/10 text-brand-blue"
+                            : "border-input hover:border-brand-blue/50 text-foreground"
                         }`}
                       >
                         Custom
                       </button>
                     </div>
 
-                    {amount === 'custom' && (
+                    {amount === "custom" && (
                       <div className="mt-4 relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-foreground/50">
                           <IndianRupee size={18} />
@@ -203,7 +210,7 @@ function DonatePage() {
                         placeholder="John Doe"
                       />
                     </div>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="text-xs font-semibold uppercase tracking-widest text-foreground/70 mb-1.5 block">
@@ -250,7 +257,11 @@ function DonatePage() {
 
                   <button
                     type="submit"
-                    disabled={isSubmitting || (!customAmount && amount === 'custom') || !formData.donorName.trim()}
+                    disabled={
+                      isSubmitting ||
+                      (!customAmount && amount === "custom") ||
+                      !formData.donorName.trim()
+                    }
                     className="w-full mt-8 inline-flex justify-center items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold btn-primary disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
@@ -260,7 +271,20 @@ function DonatePage() {
                       </>
                     ) : (
                       <>
-                        Donate {amount !== 'custom' ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount) : (customAmount ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(customAmount)) : '')}
+                        Donate{" "}
+                        {amount !== "custom"
+                          ? new Intl.NumberFormat("en-IN", {
+                              style: "currency",
+                              currency: "INR",
+                              maximumFractionDigits: 0,
+                            }).format(amount)
+                          : customAmount
+                            ? new Intl.NumberFormat("en-IN", {
+                                style: "currency",
+                                currency: "INR",
+                                maximumFractionDigits: 0,
+                              }).format(Number(customAmount))
+                            : ""}
                       </>
                     )}
                   </button>

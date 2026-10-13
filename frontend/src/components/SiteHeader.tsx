@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import logo from "@/assets/prg-logo.jpg";
 import { Menu, X } from "lucide-react";
 
 const nav = [
@@ -31,19 +30,12 @@ export function SiteHeader() {
       }`}
     >
       <div className="container-x flex items-center justify-between py-3">
-        <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
-          <img
-            src={logo}
-            alt="PRG Social Welfare Trust logo"
-            width={56}
-            height={56}
-            className="h-12 w-12 shrink-0 rounded-full object-cover ring-2 ring-brand-orange/40 sm:h-14 sm:w-14"
-          />
-          <div className="leading-tight">
-            <div className="font-display text-lg font-semibold text-brand-blue-deep sm:text-xl">
+        <Link to="/" className="flex items-center" onClick={() => setOpen(false)}>
+          <div className="max-w-[calc(100vw-5rem)] text-center leading-tight">
+            <div className="whitespace-nowrap font-display text-[clamp(1.125rem,4.8vw,1.5rem)] font-semibold text-brand-blue-deep">
               PRG Social Welfare Trust
             </div>
-            <div className="text-xs uppercase tracking-widest text-brand-orange-deep">
+            <div className="mt-1 text-sm font-medium uppercase tracking-[0.16em] text-brand-orange-deep">
               Together for Change
             </div>
           </div>

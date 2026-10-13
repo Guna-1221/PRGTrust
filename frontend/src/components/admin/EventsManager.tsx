@@ -266,7 +266,7 @@ function EventForm({
           </div>
 
           <div>
-            <label className="text-sm font-medium">Registration Link</label>
+            <label className="text-sm font-medium">Registration Link (optional)</label>
             <input
               type="url"
               value={registrationLink}
@@ -276,7 +276,7 @@ function EventForm({
               disabled={isSaving}
             />
           </div>
-          
+
           <div>
             <label className="text-sm font-medium">Contact Info</label>
             <input

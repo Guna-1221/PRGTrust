@@ -411,12 +411,12 @@ apiRouter.post(
   admin,
   asyncRoute(async (req, res) => {
     const body = bodyOf(req);
-    const name = stringValue(body?.name);
-    const position = stringValue(body?.position) || stringValue(body?.role);
-    if (!name?.trim() || !position?.trim()) {
-      failed(res, "Name and position are required.");
+    if (!body) {
+      failed(res, "Invalid request payload.");
       return;
     }
+    const name = stringValue(body.name) ?? "";
+    const position = stringValue(body.position) ?? stringValue(body.role) ?? "";
     res.status(201).json(
       await createMember({
         name,
@@ -427,7 +427,15 @@ apiRouter.post(
         experience: stringValue(body?.experience),
         phone: stringValue(body?.phone),
         email: stringValue(body?.email),
-        isActive: body?.isActive === 0 || body?.active === false ? 0 : 1,
+        isLeadership: body?.isLeadership === true || body?.isLeadership === 1 ? 1 : 0,
+        isActive:
+          body?.isActive === false ||
+          body?.isActive === 0 ||
+          body?.active === false
+            ? 0
+            : 1,
+        displayOrder:
+          typeof body?.displayOrder === "number" ? body.displayOrder : undefined,
       }),
     );
   }),
@@ -464,13 +472,18 @@ apiRouter.put(
       const value = stringValue(body[key]);
       if (value !== undefined) patch[key] = value;
     }
-    const position = stringValue(body.position) || stringValue(body.role);
-    const biography = stringValue(body.biography) || stringValue(body.bio);
+    const position = stringValue(body.position) ?? stringValue(body.role);
+    const biography = stringValue(body.biography) ?? stringValue(body.bio);
     if (position !== undefined) patch.position = position;
     if (biography !== undefined) patch.biography = biography;
-    if (typeof body.isLeadership === "number")
+    if (typeof body.isLeadership === "boolean")
+      patch.isLeadership = body.isLeadership ? 1 : 0;
+    else if (typeof body.isLeadership === "number")
       patch.isLeadership = body.isLeadership;
-    if (typeof body.isActive === "number") patch.isActive = body.isActive;
+    if (typeof body.isActive === "boolean")
+      patch.isActive = body.isActive ? 1 : 0;
+    else if (typeof body.isActive === "number")
+      patch.isActive = body.isActive;
     else if (typeof body.active === "boolean")
       patch.isActive = body.active ? 1 : 0;
     if (typeof body.displayOrder === "number")

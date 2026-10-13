@@ -12,11 +12,19 @@ import {
   CloudUpload,
 } from "lucide-react";
 import { uploadFileToR2 } from "./upload-helper";
-import { findFounderMember } from "@/lib/member-display";
+import { DEFAULT_FOUNDER_PROFILE, findFounderMember } from "@/lib/member-display";
+
+const founderFormDefaults: Partial<Member> = {
+  ...DEFAULT_FOUNDER_PROFILE,
+  isLeadership: true,
+  isActive: true,
+  displayOrder: 0,
+};
 
 export function MembersManager() {
   const { items, isLoading, add, update, remove } = useMembers(false);
   const [editing, setEditing] = useState<Member | null>(null);
+  const [isAddingFounder, setIsAddingFounder] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const founder = findFounderMember(items);
 
@@ -29,6 +37,7 @@ export function MembersManager() {
         <button
           onClick={() => {
             setEditing(null);
+            setIsAddingFounder(false);
             setShowForm(true);
           }}
           className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold btn-primary"
@@ -69,6 +78,7 @@ export function MembersManager() {
             type="button"
             onClick={() => {
               setEditing(founder ?? null);
+              setIsAddingFounder(!founder);
               setShowForm(true);
             }}
             className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-full border border-brand-orange/30 bg-background px-4 py-2.5 text-sm font-semibold text-brand-blue-deep hover:bg-brand-orange/10 sm:self-auto"
@@ -81,16 +91,19 @@ export function MembersManager() {
 
       {showForm && (
         <MemberForm
-          initial={editing}
+          key={editing?.id ?? (isAddingFounder ? "new-founder" : "new-member")}
+          initial={editing ?? (isAddingFounder ? founderFormDefaults : null)}
           onCancel={() => {
             setShowForm(false);
             setEditing(null);
+            setIsAddingFounder(false);
           }}
           onSave={async (data) => {
             const saved = editing ? await update(editing.id, data) : await add(data);
             if (saved) {
               setShowForm(false);
               setEditing(null);
+              setIsAddingFounder(false);
             }
             return saved !== null;
           }}
@@ -177,7 +190,7 @@ function MemberForm({
   onSave,
   onCancel,
 }: {
-  initial: Member | null;
+  initial: Partial<Member> | null;
   onSave: (d: Omit<Member, "id" | "createdAt" | "updatedAt">) => Promise<boolean>;
   onCancel: () => void;
 }) {
@@ -222,11 +235,6 @@ function MemberForm({
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !position.trim()) {
-      setErr("Name and position are required.");
-      return;
-    }
-
     try {
       setIsSaving(true);
       const saved = await onSave({
@@ -254,7 +262,13 @@ function MemberForm({
   return (
     <form onSubmit={submit} className="mt-6 card-soft p-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">{initial ? "Edit member" : "New member"}</h3>
+        <h3 className="text-lg font-semibold">
+          {initial?.id
+            ? "Edit member"
+            : initial?.isLeadership
+              ? "Add founder profile"
+              : "New member"}
+        </h3>
         <button type="button" onClick={onCancel} className="p-2 rounded-full hover:bg-secondary">
           <X size={18} />
         </button>
@@ -263,7 +277,7 @@ function MemberForm({
       <div className="mt-5 grid gap-5 md:grid-cols-2">
         <div className="flex flex-col gap-4">
           <div>
-            <label className="text-sm font-medium">Name *</label>
+            <label className="text-sm font-medium">Name (optional)</label>
             <input
               value={name}
               onChange={(ev) => setName(ev.target.value)}
@@ -274,7 +288,7 @@ function MemberForm({
           </div>
 
           <div>
-            <label className="text-sm font-medium">Position *</label>
+            <label className="text-sm font-medium">Position (optional)</label>
             <input
               value={position}
               onChange={(ev) => setPosition(ev.target.value)}
@@ -286,7 +300,7 @@ function MemberForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-sm font-medium">Phone</label>
+              <label className="text-sm font-medium">Phone (optional)</label>
               <input
                 value={phone}
                 onChange={(ev) => setPhone(ev.target.value)}
@@ -295,7 +309,7 @@ function MemberForm({
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Email</label>
+              <label className="text-sm font-medium">Email (optional)</label>
               <input
                 type="email"
                 value={email}
@@ -308,7 +322,7 @@ function MemberForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-sm font-medium">Qualification</label>
+              <label className="text-sm font-medium">Qualification (optional)</label>
               <input
                 value={qualification}
                 onChange={(ev) => setQualification(ev.target.value)}
@@ -317,7 +331,7 @@ function MemberForm({
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Experience</label>
+              <label className="text-sm font-medium">Experience (optional)</label>
               <input
                 value={experience}
                 onChange={(ev) => setExperience(ev.target.value)}
@@ -328,7 +342,7 @@ function MemberForm({
           </div>
 
           <div>
-            <label className="text-sm font-medium">Biography</label>
+            <label className="text-sm font-medium">Biography (optional)</label>
             <textarea
               value={biography}
               onChange={(ev) => setBiography(ev.target.value)}
